@@ -1,0 +1,12 @@
+{
+  "name": "com.littlebitgames.storagemodule",
+  "displayName": "Storage Module",
+  "version": "1.0.0",
+  "unity": "2021.1",
+  "unityRelease": "6f1",
+  "description": "This module provides data storage during a gaming session",
+  "category": "Module",
+  "author": {
+    "name": "LittleBitGames"
+  }
+}
