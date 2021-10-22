@@ -11,10 +11,10 @@ namespace LittleBit.Modules.StorageModule
         private readonly Dictionary<string, List<Action>> _listeners;
         private readonly ISaveService _saveService;
 
-        private InfoDataStorageService _infoDataStorageService;
+        private IDataInfo _infoDataStorageService;
 
         [Inject]
-        public DataStorageService(ISaveService saveService, InfoDataStorageService infoDataStorageService)
+        public DataStorageService(ISaveService saveService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
             _listeners = new Dictionary<string, List<Action>>();
