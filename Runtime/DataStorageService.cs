@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using LittleBit.Modules.CoreModule;
-using Zenject;
 
 namespace LittleBit.Modules.StorageModule
 {
@@ -12,8 +11,7 @@ namespace LittleBit.Modules.StorageModule
         private readonly ISaveService _saveService;
 
         private IDataInfo _infoDataStorageService;
-
-        [Inject]
+        
         public DataStorageService(ISaveService saveService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
