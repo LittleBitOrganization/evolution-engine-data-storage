@@ -7,7 +7,7 @@ namespace LittleBit.Modules.StorageModule
     public class DataStorageService : IDataStorageService
     {
         private readonly Dictionary<string, Data> _storage;
-        private readonly Dictionary<string, List<Action>> _listeners;
+        private readonly Dictionary<string, List<Action<string>>> _listeners;
         private readonly ISaveService _saveService;
 
         private IDataInfo _infoDataStorageService;
@@ -15,7 +15,7 @@ namespace LittleBit.Modules.StorageModule
         public DataStorageService(ISaveService saveService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
-            _listeners = new Dictionary<string, List<Action>>();
+            _listeners = new Dictionary<string, List<Action<string>>>();
             _saveService = saveService;
             _infoDataStorageService = infoDataStorageService;
             _infoDataStorageService.Clear();
@@ -54,25 +54,25 @@ namespace LittleBit.Modules.StorageModule
                 var listeners = _listeners[key];
                 foreach (var listener in listeners)
                 {
-                    listener.Invoke();
+                    listener.Invoke(key);
                 }
             }
 
             _saveService.SaveData(key, data);
             _infoDataStorageService.UpdateData(key, data);
         }
-
-        public void AddUpdateDataListener(string key, Action onUpdateData)
+        
+        public void AddUpdateDataListener(string key, Action<string> onUpdateData)
         {
             if (!_listeners.ContainsKey(key))
             {
-                _listeners.Add(key, new List<Action>());
+                _listeners.Add(key, new List<Action<string>>());
             }
 
             _listeners[key].Add(onUpdateData);
         }
 
-        public void RemoveUpdateDataListener(string key, Action onUpdateData)
+        public void RemoveUpdateDataListener(string key, Action<string> onUpdateData)
         {
             if (_listeners.ContainsKey(key))
             {

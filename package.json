@@ -1,7 +1,7 @@
 {
   "name": "com.littlebitgames.datastoragemodule",
   "displayName": "Data Storage Module",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "unity": "2021.1",
   "unityRelease": "6f1",
   "category": "Module",
