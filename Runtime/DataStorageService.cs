@@ -96,6 +96,19 @@ namespace LittleBit.Modules.StorageModule
             
             _listeners[handler][type][key].Remove(onUpdateData);
         }
+
+        public void RemoveAllUpdateDataListenersOnObject(object handler)
+        {
+            if(!_listeners.ContainsKey(handler)) return;
+
+            foreach (var type in _listeners[handler].Keys)
+            {
+                foreach (var key in _listeners[handler][type].Keys)
+                {
+                    _listeners[handler][type][key].Clear();
+                }
+            }
+        }
     }
 
     public class TypedDelegates : Dictionary<Type, Dictionary<string, ArrayList>>
