@@ -8,21 +8,19 @@ namespace LittleBit.Modules.StorageModule
     public class DataStorageService : IDataStorageService
     {
         private readonly Dictionary<string, Data> _storage;
-        private readonly Dictionary<string, List<Action<string>>> _listeners;
         private readonly ISaveService _saveService;
-        private readonly Dictionary<Type, Dictionary<string, ArrayList>> _typedListeners;
+        private readonly Dictionary<object, TypedDelegates> _listeners;
 
 
         private IDataInfo _infoDataStorageService;
-        
+
         public DataStorageService(ISaveService saveService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
-            _listeners = new Dictionary<string, List<Action<string>>>();
             _saveService = saveService;
             _infoDataStorageService = infoDataStorageService;
             _infoDataStorageService.Clear();
-            _typedListeners = new Dictionary<Type, Dictionary<string, ArrayList>>();
+            _listeners = new Dictionary<object, TypedDelegates>();
         }
 
         public T GetData<T>(string key) where T : Data, new()
@@ -44,72 +42,63 @@ namespace LittleBit.Modules.StorageModule
 
         public void SetData<T>(string key, T data) where T : Data
         {
-            if (!_storage.ContainsKey(key))
-            {
-                _storage.Add(key, data);
-            }
-            else
-            {
-                _storage[key] = data;
-            }
-            
+            if (!_storage.ContainsKey(key)) _storage.Add(key, data);
+            else _storage[key] = data;
+
             var type = typeof(T);
 
-            if (_typedListeners.ContainsKey(type)) //TODO: refactor scopes
+            foreach (var obj in _listeners.Keys)
             {
-                if (_typedListeners[type].ContainsKey(key))
-                {
-                    foreach (var obj in _typedListeners[type][key])
-                    {
-                        (obj as IDataStorageService.GenericCallback<T>)(data);
-                    }
-                }
-            }
+                if (!_listeners[obj].ContainsKey(type)) continue;
 
-            if (_listeners.ContainsKey(key) && _storage.ContainsKey(key))
-            {
-                var listeners = _listeners[key];
-                foreach (var listener in listeners)
+                if (!_listeners[obj][type].ContainsKey(key)) continue;
+
+                foreach (var listener in _listeners[obj][type][key])
                 {
-                    listener.Invoke(key);
+                    (listener as IDataStorageService.GenericCallback<T>)(data);
                 }
             }
 
             _saveService.SaveData(key, data);
             _infoDataStorageService.UpdateData(key, data);
         }
-        
-        public void AddUpdateDataListener<T>(string key, IDataStorageService.GenericCallback<T> onUpdateData)
+
+        public void AddUpdateDataListener<T>(object handler, string key,
+            IDataStorageService.GenericCallback<T> onUpdateData)
         {
             var type = typeof(T);
 
-            if (!_typedListeners.ContainsKey(type))
-            {
-                _typedListeners[type] = new Dictionary<string, ArrayList>();
-            }
+            if (!_listeners.ContainsKey(handler))
+                _listeners[handler] = new TypedDelegates();
 
-            if (!_typedListeners[type].ContainsKey(key))
-                _typedListeners[type][key] = new ArrayList();
 
-            _typedListeners[type][key].Add(onUpdateData);
+            if (!_listeners[handler].ContainsKey(type))
+                _listeners[handler][type] = new Dictionary<string, ArrayList>();
+
+
+            if (!_listeners[handler][type].ContainsKey(key))
+                _listeners[type][type][key] = new ArrayList();
+
+            _listeners[handler][type][key].Add(onUpdateData);
         }
-        
-        public void AddUpdateDataListener(string key, Action<string> onUpdateData)
+
+        public void RemoveUpdateDataListener<T>(object handler, string key, IDataStorageService.GenericCallback<T> onUpdateData)
         {
-            if (!_listeners.ContainsKey(key))
-            {
-                _listeners.Add(key, new List<Action<string>>());
-            }
+            var type = typeof(T);
 
-            _listeners[key].Add(onUpdateData);
-        }
+            if (!_listeners.ContainsKey(handler)) return;
 
-        public void RemoveUpdateDataListener(string key, Action<string> onUpdateData)
-        {
-            if (_listeners.ContainsKey(key))
-            {
-                _listeners[key].Remove(onUpdateData);
-            }
+            if (!_listeners[handler].ContainsKey(type)) return;
+
+            if (!_listeners[handler][type].ContainsKey(key)) return;
+
+            if(!_listeners[handler][type][key].Contains(onUpdateData)) return;
+            
+            _listeners[handler][type][key].Remove(onUpdateData);
         }
+    }
+
+    public class TypedDelegates : Dictionary<Type, Dictionary<string, ArrayList>>
+    {
     }
 }
