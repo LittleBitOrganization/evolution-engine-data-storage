@@ -77,7 +77,7 @@ namespace LittleBit.Modules.StorageModule
 
 
             if (!_listeners[handler][type].ContainsKey(key))
-                _listeners[type][type][key] = new ArrayList();
+                _listeners[handler][type][key] = new ArrayList();
 
             _listeners[handler][type][key].Add(onUpdateData);
         }
