@@ -5,19 +5,22 @@ using LittleBit.Modules.CoreModule;
 
 namespace LittleBit.Modules.StorageModule
 {
-    public class DataStorageService : IDataStorageService
+    public class DataStorageService : IDataStorageService, ISavable
     {
         private readonly Dictionary<string, Data> _storage;
         private readonly ISaveService _saveService;
+        private readonly ISaverService _saverService;
         private readonly Dictionary<object, TypedDelegates> _listeners;
 
 
         private IDataInfo _infoDataStorageService;
 
-        public DataStorageService(ISaveService saveService, IDataInfo infoDataStorageService)
+        public DataStorageService(ISaveService saveService, ISaverService saverService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
             _saveService = saveService;
+            _saverService = saverService;
+            _saverService.AddSavableObject(this);
             _infoDataStorageService = infoDataStorageService;
             _infoDataStorageService.Clear();
             _listeners = new Dictionary<object, TypedDelegates>();
@@ -58,8 +61,7 @@ namespace LittleBit.Modules.StorageModule
                     (listener as IDataStorageService.GenericCallback<T>)(data);
                 }
             }
-
-            _saveService.SaveData(key, data);
+            
             _infoDataStorageService.UpdateData(key, data);
         }
 
@@ -109,9 +111,18 @@ namespace LittleBit.Modules.StorageModule
                 }
             }
         }
+        
+        public void Save()
+        {
+            foreach (var pairData in _storage)
+            {
+                _saveService.SaveData(pairData.Key, pairData.Value);
+            }
+        }
     }
 
     public class TypedDelegates : Dictionary<Type, Dictionary<string, ArrayList>>
     {
+        
     }
 }
