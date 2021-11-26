@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using LittleBit.Modules.CoreModule;
 
 namespace LittleBit.Modules.StorageModule
@@ -47,7 +48,7 @@ namespace LittleBit.Modules.StorageModule
 
             var type = typeof(T);
 
-            foreach (var obj in _listeners.Keys)
+            foreach (var obj in _listeners.Keys.ToList())
             {
                 if (!_listeners[obj].ContainsKey(type)) continue;
 
