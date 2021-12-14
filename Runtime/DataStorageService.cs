@@ -14,7 +14,8 @@ namespace LittleBit.Modules.StorageModule
 
 
         private IDataInfo _infoDataStorageService;
-
+        private Queue<PostRemoveCommand> _postRemoveAllUpdateDataListener;
+        private Queue<PostRemoveCommand> _postRemoveUpdateDataListener;
         public DataStorageService(ISaveService saveService, ISaverService saverService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
@@ -24,10 +25,13 @@ namespace LittleBit.Modules.StorageModule
             _infoDataStorageService = infoDataStorageService;
             _infoDataStorageService.Clear();
             _listeners = new Dictionary<object, TypedDelegates>();
+            _postRemoveAllUpdateDataListener = new Queue<PostRemoveCommand>();
+            _postRemoveUpdateDataListener = new Queue<PostRemoveCommand>();
         }
 
         public T GetData<T>(string key) where T : Data, new()
         {
+            RemoveUnusedListeners();
             if (!_storage.ContainsKey(key))
             {
                 T data = _saveService.LoadData<T>(key);
@@ -45,6 +49,7 @@ namespace LittleBit.Modules.StorageModule
 
         public void SetData<T>(string key, T data) where T : Data
         {
+            RemoveUnusedListeners();
             if (!_storage.ContainsKey(key)) _storage.Add(key, data);
             else _storage[key] = data;
 
@@ -61,8 +66,26 @@ namespace LittleBit.Modules.StorageModule
                     (listener as IDataStorageService.GenericCallback<T>)(data);
                 }
             }
+
+            RemoveUnusedListeners();
             
             _infoDataStorageService.UpdateData(key, data);
+        }
+
+        private void RemoveUnusedListeners()
+        {
+            while (_postRemoveUpdateDataListener.Count > 0)
+            {
+                PostRemoveCommand command = _postRemoveUpdateDataListener.Dequeue();
+                command.List.Remove(command.OnUpdateData);
+            }
+
+            while (_postRemoveAllUpdateDataListener.Count > 0)
+            {
+                PostRemoveCommand command = _postRemoveAllUpdateDataListener.Dequeue();
+                command.List.Clear();
+            }
+          
         }
 
         public void AddUpdateDataListener<T>(object handler, string key,
@@ -96,9 +119,9 @@ namespace LittleBit.Modules.StorageModule
 
             if(!_listeners[handler][type][key].Contains(onUpdateData)) return;
             
-            _listeners[handler][type][key].Remove(onUpdateData);
+            _postRemoveUpdateDataListener.Enqueue(new PostRemoveCommand(_listeners[handler][type][key], onUpdateData));
         }
-
+        
         public void RemoveAllUpdateDataListenersOnObject(object handler)
         {
             if(!_listeners.ContainsKey(handler)) return;
@@ -107,7 +130,7 @@ namespace LittleBit.Modules.StorageModule
             {
                 foreach (var key in _listeners[handler][type].Keys)
                 {
-                    _listeners[handler][type][key].Clear();
+                    _postRemoveAllUpdateDataListener.Enqueue(new PostRemoveCommand(_listeners[handler][type][key], null));
                 }
             }
         }
@@ -118,6 +141,23 @@ namespace LittleBit.Modules.StorageModule
             {
                 _saveService.SaveData(pairData.Key, pairData.Value);
             }
+        }
+
+      
+        
+        public class PostRemoveCommand
+        {
+            private ArrayList _list;
+            private object _onUpdateData;
+            public PostRemoveCommand(ArrayList list, object onUpdateData)
+            {
+                _list = list;
+                _onUpdateData = onUpdateData;
+            }
+
+            public ArrayList List => _list;
+
+            public object OnUpdateData => _onUpdateData;
         }
     }
 
