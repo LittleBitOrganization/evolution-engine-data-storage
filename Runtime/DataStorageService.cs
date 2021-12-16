@@ -32,6 +32,11 @@ namespace LittleBit.Modules.StorageModule
         public T GetData<T>(string key) where T : Data, new()
         {
             RemoveUnusedListeners();
+            if(key == null)
+                throw new Exception("Key is null");
+            if(key.Length == 0)
+                throw new Exception("Key is empty");
+            
             if (!_storage.ContainsKey(key))
             {
                 T data = _saveService.LoadData<T>(key);
