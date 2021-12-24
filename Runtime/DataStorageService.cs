@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using LittleBit.Modules.CoreModule;
+using UnityEngine.Scripting;
 
 namespace LittleBit.Modules.StorageModule
 {
@@ -16,6 +17,8 @@ namespace LittleBit.Modules.StorageModule
         private IDataInfo _infoDataStorageService;
         private Queue<PostRemoveCommand> _postRemoveAllUpdateDataListener;
         private Queue<PostRemoveCommand> _postRemoveUpdateDataListener;
+        
+        [Preserve]
         public DataStorageService(ISaveService saveService, ISaverService saverService, IDataInfo infoDataStorageService)
         {
             _storage = new Dictionary<string, Data>();
