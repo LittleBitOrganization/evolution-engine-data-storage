@@ -70,7 +70,7 @@ namespace LittleBit.Modules.StorageModule
 
                 if (!_listeners[obj][type].ContainsKey(key)) continue;
 
-                foreach (var listener in _listeners[obj][type][key])
+                foreach (var listener in _listeners[obj][type][key].ToArray())
                 {
                     (listener as IDataStorageService.GenericCallback<T>)(data);
                 }
