@@ -14,7 +14,7 @@ namespace LittleBit.Modules.StorageModule
         private readonly ISaverService _saverService;
         private readonly Dictionary<object, TypedDelegates> _listeners;
 
-        public event Action<string> OnDataRemoved;
+
         private IDataInfo _infoDataStorageService;
         private Queue<PostRemoveCommand> _postRemoveAllUpdateDataListener;
         private Queue<PostRemoveCommand> _postRemoveUpdateDataListener;
@@ -129,6 +129,7 @@ namespace LittleBit.Modules.StorageModule
             if(!_listeners[handler][type][key].Contains(onUpdateData)) return;
             
             _postRemoveUpdateDataListener.Enqueue(new PostRemoveCommand(_listeners[handler][type][key], onUpdateData));
+            _postRemoveUpdateDataListener.Enqueue(new PostRemoveCommand(_listeners[handler][type][key], onUpdateData));
         }
 
         public void RemoveData<T>(string key) where T : Data
@@ -137,7 +138,7 @@ namespace LittleBit.Modules.StorageModule
 
             _storage[key] = null;
         }
-        
+
         public void RemoveAllUpdateDataListenersOnObject(object handler)
         {
             if(!_listeners.ContainsKey(handler)) return;
@@ -160,6 +161,7 @@ namespace LittleBit.Modules.StorageModule
             }
         }
 
+        
         public class PostRemoveCommand
         {
             private ArrayList _list;
