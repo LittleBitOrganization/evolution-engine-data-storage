@@ -83,8 +83,8 @@ namespace LittleBit.Modules.StorageModule
 
             RemoveUnusedListeners();
             
-            _saveService.SaveData(key, data);
-
+            SaveData(key, data);
+            
             _infoDataStorageService.UpdateData(key, data);
         }
 
@@ -160,12 +160,16 @@ namespace LittleBit.Modules.StorageModule
             }
         }
 
+        private void SaveData(string key, Data value)
+        {
+            if (value == null) _saveService.ClearData(key);
+            else _saveService.SaveData(key, value);
+        }
         public void Save()
         {
             foreach (var pairData in _storage)
             {
-                if (pairData.Value == null) _saveService.ClearData(pairData.Key);
-                _saveService.SaveData(pairData.Key, pairData.Value);
+                SaveData(pairData.Key, pairData.Value);
             }
         }
 
