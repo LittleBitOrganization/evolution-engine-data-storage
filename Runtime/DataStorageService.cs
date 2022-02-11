@@ -64,7 +64,6 @@ namespace LittleBit.Modules.StorageModule
 
         public void SetData<T>(string key, T data, SaveMode saveMode = SaveMode.Save) where T : Data
         {
-            Debug.Log("DataStorageService: " + key);
             RemoveUnusedListeners();
             if (!_storage.ContainsKey(key)) _storage.Add(key, data);
             else _storage[key] = data;
