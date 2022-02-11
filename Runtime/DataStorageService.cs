@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using LittleBit.Modules.CoreModule;
+using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace LittleBit.Modules.StorageModule
@@ -63,6 +64,7 @@ namespace LittleBit.Modules.StorageModule
 
         public void SetData<T>(string key, T data) where T : Data
         {
+            Debug.Log("DataStorageService: " + key);
             RemoveUnusedListeners();
             if (!_storage.ContainsKey(key)) _storage.Add(key, data);
             else _storage[key] = data;
