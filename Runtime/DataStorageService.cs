@@ -78,6 +78,7 @@ namespace LittleBit.Modules.StorageModule
 
             RemoveUnusedListeners();
             
+            _saveService.SaveData(key, data);
             _infoDataStorageService.UpdateData(key, data);
         }
 
@@ -94,7 +95,7 @@ namespace LittleBit.Modules.StorageModule
                 PostRemoveCommand command = _postRemoveAllUpdateDataListener.Dequeue();
                 command.List.Clear();
             }
-          
+            
         }
 
         public void AddUpdateDataListener<T>(object handler, string key,
