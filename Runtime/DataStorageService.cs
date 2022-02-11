@@ -62,7 +62,7 @@ namespace LittleBit.Modules.StorageModule
             return new StorageData<T>(handler, this, key);
         }
 
-        public void SetData<T>(string key, T data) where T : Data
+        public void SetData<T>(string key, T data, SaveMode saveMode = SaveMode.Save) where T : Data
         {
             Debug.Log("DataStorageService: " + key);
             RemoveUnusedListeners();
@@ -85,7 +85,8 @@ namespace LittleBit.Modules.StorageModule
 
             RemoveUnusedListeners();
             
-            SaveData(key, data);
+            if(saveMode == SaveMode.Save)
+                SaveData(key, data);
             
             _infoDataStorageService.UpdateData(key, data);
         }
@@ -167,6 +168,7 @@ namespace LittleBit.Modules.StorageModule
             if (value == null) _saveService.ClearData(key);
             else _saveService.SaveData(key, value);
         }
+        
         public void Save()
         {
             foreach (var pairData in _storage)
