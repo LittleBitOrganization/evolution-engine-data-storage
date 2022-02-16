@@ -58,7 +58,7 @@ namespace LittleBit.Modules.StorageModule
             return (T) _storage[key];
         }
 
-        public StorageData<T> CreateDataWrapper<T>(object handler, string key) where T : Data, INotifyPropertyChanged, new()
+        public StorageData<T> CreateDataWrapper<T>(object handler, string key) where T : Data, new()
         {
             return new StorageData<T>(handler, this, key);
         }
