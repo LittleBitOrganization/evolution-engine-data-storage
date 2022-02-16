@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using LittleBit.Modules.CoreModule;
+using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace LittleBit.Modules.StorageModule
@@ -62,7 +63,7 @@ namespace LittleBit.Modules.StorageModule
             return new StorageData<T>(handler, this, key);
         }
 
-        public void SetData<T>(string key, T data) where T : Data
+        public void SetData<T>(string key, T data, SaveMode saveMode = SaveMode.Save) where T : Data
         {
             RemoveUnusedListeners();
             if (!_storage.ContainsKey(key)) _storage.Add(key, data);
@@ -83,7 +84,10 @@ namespace LittleBit.Modules.StorageModule
             }
 
             RemoveUnusedListeners();
-
+            
+            if(saveMode == SaveMode.Save)
+                SaveData(key, data);
+            
             _infoDataStorageService.UpdateData(key, data);
         }
 
@@ -159,12 +163,17 @@ namespace LittleBit.Modules.StorageModule
             }
         }
 
+        private void SaveData(string key, Data value)
+        {
+            if (value == null) _saveService.ClearData(key);
+            else _saveService.SaveData(key, value);
+        }
+        
         public void Save()
         {
             foreach (var pairData in _storage)
             {
-                if (pairData.Value == null) _saveService.ClearData(pairData.Key);
-                _saveService.SaveData(pairData.Key, pairData.Value);
+                SaveData(pairData.Key, pairData.Value);
             }
         }
 
