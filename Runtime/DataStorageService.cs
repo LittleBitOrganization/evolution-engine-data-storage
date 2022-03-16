@@ -124,6 +124,12 @@ namespace LittleBit.Modules.StorageModule
             _listeners[handler][type][key].Add(onUpdateData);
         }
 
+        public void AddUpdateDataListenerWithUpdateData<T>(object handler, string key, IDataStorageService.GenericCallback<T> onUpdateData) where T : Data, new()
+        {
+            AddUpdateDataListener<T>(handler, key, onUpdateData);
+            onUpdateData?.Invoke(GetData<T>(key));
+        }
+
         public void RemoveUpdateDataListener<T>(object handler, string key,
             IDataStorageService.GenericCallback<T> onUpdateData)
         {
